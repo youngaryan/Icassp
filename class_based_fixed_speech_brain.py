@@ -1,4 +1,11 @@
 import pandas as pd
+import random
+import os
+from secret import SEED
+
+os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
+os.environ["PYTHONHASHSEED"] = str(SEED)
+
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
@@ -6,9 +13,26 @@ from speechbrain.inference import EncoderClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import balanced_accuracy_score
+import numpy as np
 import sys
-import os
 import time
+
+
+
+def set_global_seed(seed: int):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    # cuDNN / CUDA determinism
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    # Raise if a non-deterministic op slips in
+    torch.use_deterministic_algorithms(True, warn_only=False)
+
+set_global_seed(SEED)
+
+
 
 # Ensure correct relative import paths
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -58,8 +82,8 @@ class EmotionRecognitionTrainer:
         self.valid_dataset = EmotionDataset(
             valid_df, feature_extractor=None, max_length=config["max_length"], label_encoder=mapping
         )
-        self.train_loader = DataLoader(self.train_dataset, batch_size=config["batch_size"], shuffle=True)
-        self.valid_loader = DataLoader(self.valid_dataset, batch_size=config["batch_size"], shuffle=False)
+        self.train_loader = DataLoader(self.train_dataset, batch_size=config["batch_size"], shuffle=True, num_workers=0,   persistent_workers=False)
+        self.valid_loader = DataLoader(self.valid_dataset, batch_size=config["batch_size"], shuffle=False, num_workers=0,   persistent_workers=False)
         
         # ---------------------------
         # Set up loss, optimizer, and scheduler
