@@ -1,4 +1,5 @@
 # SpeechBrain Emotion HPO
+https://arxiv.org/abs/2510.07052
 
 > **Hyperparameter optimization (HPO) toolbox for Speech Emotion Recognition (SER) built on [SpeechBrain].**
 This repository contains a lightweight pipeline to **prepare emotion datasets**, **train SER models with SpeechBrain**, and **run automated hyperparameter search** ([Ax], [hyperopt], and [Optuna]). It’s intended for reproducible research and quick experimentation.
